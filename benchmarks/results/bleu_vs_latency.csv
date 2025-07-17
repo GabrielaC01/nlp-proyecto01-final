@@ -1,0 +1,6 @@
+decodificador,BLEU,latencia_promedio_s
+greedy,0.003,0.0281
+beam,0.0023,0.0802
+topk,0.003,0.0318
+topp,0.0028,0.0407
+diverse_beam,0.0022,0.0779
