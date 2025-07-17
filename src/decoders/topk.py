@@ -1,6 +1,6 @@
 import torch
 from torch import Tensor
-from typing import List
+from typing import List, Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ class TopKSampler:
     En cada paso selecciona aleatoriamente uno de los k tokens más probables
     """
 
-    def __init__(self, model, sos_token: int, eos_token: int, k: int = 5, max_len: int = 50):
+    def __init__(self, model, sos_token: int, eos_token: int, k: int = 5, max_len: int = 50, seed: Optional[int] = None):
         """
         Inicializa el decodificador
 
@@ -23,12 +23,14 @@ class TopKSampler:
             eos_token (int): Token <EOS>
             k (int): Número de tokens candidatos
             max_len (int): Longitud máxima de la secuencia generada
+            seed (int, opcional): Semilla para aleatoriedad
         """
         self.model = model
         self.sos_token = sos_token
         self.eos_token = eos_token
         self.k = k
         self.max_len = max_len
+        self.seed = seed
 
         logger.info("TopKSampler inicializado con k = %d y max_len = %d", k, max_len)
 
@@ -42,6 +44,10 @@ class TopKSampler:
         Returns:
             List[int]: Lista de tokens generados
         """
+
+        if self.seed is not None:
+            torch.manual_seed(self.seed)
+
         device = src.device
         batch_size = src.size(0)
 
