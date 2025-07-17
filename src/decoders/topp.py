@@ -1,6 +1,6 @@
 import torch
 from torch import Tensor
-from typing import List
+from typing import List, Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ class TopPSampler:
     Selecciona aleatoriamente entre los tokens cuya probabilidad acumulada alcanza al menos p
     """
 
-    def __init__(self, model, sos_token: int, eos_token: int, p: float = 0.9, max_len: int = 50):
+    def __init__(self, model, sos_token: int, eos_token: int, p: float = 0.9, max_len: int = 50, seed: Optional[int] = None):
         """
         Inicializa el decodificador
 
@@ -22,12 +22,14 @@ class TopPSampler:
             eos_token (int): Token <EOS>
             p (float): Umbral de probabilidad acumulada
             max_len (int): Longitud máxima de la secuencia generada
+            seed (int, opcional): Semilla para aleatoriedad
         """
         self.model = model
         self.sos_token = sos_token
         self.eos_token = eos_token
         self.p = p
         self.max_len = max_len
+        self.seed = seed
 
         logger.info("TopPSampler inicializado con p = %.2f y max_len = %d", p, max_len)
 
@@ -41,6 +43,10 @@ class TopPSampler:
         Returns:
             List[int]: Lista de tokens generados
         """
+
+        if self.seed is not None:
+            torch.manual_seed(self.seed)
+
         device = src.device
         batch_size = src.size(0)
 
